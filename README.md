@@ -129,7 +129,7 @@
 # Install TCMU-RUNNER
   - git clone https://github.com/open-iscsi/tcmu-runner
   - cd tcmu-runner
-  ./extra/install_dep.sh
+  - ./extra/install_dep.sh
   - cmake -Dwith-glfs=false -Dwith-qcow=false -DSUPPORT_SYSTEMD=ON -DCMAKE_INSTALL_PREFIX=/usr
   - make install
   - systemctl daemon-reload
