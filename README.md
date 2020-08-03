@@ -118,5 +118,48 @@
 # add config cluster mon
   - vi /etc/ceph/ceph.conf
   > mon_host = [v2:192.168.1.41:3300/0,v1:192.168.1.41:6789/0] [v2:192.168.1.42:3300/0,v1:192.168.1.42:6789/0] [v2:192.168.1.43:3300/0,v1:192.168.1.43:6789/0]
-  
 
+# deploy iscsi target 
+# install git all nodes
+  - yum install git -y
+# Config osd node storage cluster for iscsi
+  - ceph tell osd.0 config set osd_heartbeat_grace 20
+  - ceph tell osd.0 config set osd_heartbeat_interval 5
+  
+# Install TCMU-RUNNER
+  - git clone https://github.com/open-iscsi/tcmu-runner
+  - cd tcmu-runner
+  - cmake -Dwith-glfs=false -Dwith-qcow=false -DSUPPORT_SYSTEMD=ON -DCMAKE_INSTALL_PREFIX=/usr
+  - make install
+  - systemctl daemon-reload
+  - systemctl enable tcmu-runner
+ 
+# Install RTSLIB-FB
+  - git clone https://github.com/open-iscsi/rtslib-fb.git
+  - cd rtslib-fb
+  - python setup.py install
+
+# Configshell-fb
+  - git clone https://github.com/open-iscsi/configshell-fb.git
+  - cd configshell-fb
+  - python setup.py install
+  
+# Install targetcli-fb
+  - git clone https://github.com/open-iscsi/targetcli-fb.git
+  - cd targetcli-fb
+  - python setup.py install
+  - mkdir /etc/target
+  - mkdir /var/target
+  
+# Install ceph-iscsi
+  - git clone https://github.com/ceph/ceph-iscsi.git
+  - cd ceph-iscsi
+  - python setup.py install --install-scripts=/usr/bin
+  - cp usr/lib/systemd/system/rbd-target-gw.service /lib/systemd/system
+  - cp usr/lib/systemd/system/rbd-target-api.service /lib/systemd/system
+  - systemctl daemon-reload
+  - systemctl enable rbd-target-gw
+  - systemctl start rbd-target-gw
+  - systemctl enable rbd-target-api
+  - systemctl start rbd-target-api
+  
