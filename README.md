@@ -63,10 +63,6 @@
   - reboot
   - uname -r
   > 5.7.12-1.el7.elrepo.x86_64
-# install sync time chrony
-  - yum install chrony -y
-  - systemctl start chronyd
-  - systemctl enable chronyd
   
 # bootstrap the cluster run the following command just the IP for the first cluster node.
   # run this command if have more 1 NIC and config Mon ip later after bootstrap finished.
