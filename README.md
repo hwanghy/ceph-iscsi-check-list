@@ -37,7 +37,7 @@
 # Use curl to fetch the most recent version of the standalone script:
   - curl --silent --remote-name --location https://github.com/ceph/ceph/raw/octopus/src/cephadm/cephadm
   - chmod +x cephadm
-# install python3 all noes before install cephadm
+# install python3 all nodes before install cephadm
   - yum install python3 -y
   
 # add repo release cephadm all nodes
