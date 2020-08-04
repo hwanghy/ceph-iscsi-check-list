@@ -70,7 +70,7 @@
   
 # bootstrap the cluster run the following command just the IP for the first cluster node.
   # run this command if have more 1 NIC and config Mon ip later after bootstrap finished.
-  - cephadm bootstrap --mon-ip 192.168.1.41 --skip-mon-network
+  - cephadm bootstrap --mon-ip 192.168.1.41
   - ceph config set mon public_network 192.168.1.0/24
   - ceph config set mon cluster_network 10.0.0.0/8
   # Save bootstrap info
