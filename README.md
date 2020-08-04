@@ -22,7 +22,11 @@
   - vi /etc/selinux/config
   > SELINUX=disabled
   > reboot
-
+# Install chrony sync time
+  - yum install chrony -y
+  - systemctl start chronyd
+  - systemctl enable chronyd
+  
 # make cephadm folder
   - mkdir cephadm
   - mkdir /etc/ceph
