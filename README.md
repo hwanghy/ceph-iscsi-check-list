@@ -143,3 +143,6 @@
   - ceph dashboard iscsi-gateway-list
   > remove gateway
   - ceph dashboard iscsi-gateway-rm GATEWAY_NAME
+
+#Disable stray daemon
+  - ceph config set mgr mgr/cephadm/warn_on_stray_daemons false
