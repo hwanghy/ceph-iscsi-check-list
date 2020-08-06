@@ -164,3 +164,10 @@
   - systemctl enable rbd-target-api
   - systemctl start rbd-target-api
   
+Install iscsi-gateway dashboard
+  - ceph dashboard set-iscsi-api-ssl-verification false
+  - ceph dashboard iscsi-gateway-add http://admin:admin@192.168.1.41:5000
+  - ceph dashboard iscsi-gateway-add http://admin:admin@192.168.1.42:5000
+  - ceph dashboard iscsi-gateway-list
+  > remove gateway
+  > ceph dashboard iscsi-gateway-rm GATEWAY_NAME
