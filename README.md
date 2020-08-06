@@ -115,6 +115,9 @@
   - systemctl enable rbd-target-api
   - systemctl start rbd-target-api
   
+# fix crash python3
+  - https://github.com/ceph/ceph-iscsi/commit/e48dcb0d3099b27595b9f4433da8493f5edb9206#diff-f1381af4114a1e777ef5e8b7b7452a01
+  
 # Create iqn target
   - gwcli
   - cd /iscsi-targets
