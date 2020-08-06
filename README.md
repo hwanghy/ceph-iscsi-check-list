@@ -15,15 +15,12 @@
     10.0.0.2 ceph2
     10.0.0.3 ceph3
 
-# Stop firewalld all nodes
-  - systemctl stop firewalld
-  - systemctl disable firewalld
-# Disable selinux
-  - vi /etc/selinux/config
-  > SELINUX=disabled
-  > reboot
+# Stop firewall all nodes
+  - systemctl stop ufw
+  - systemctl disable ufw
+
 # Install chrony sync time
-  - yum install chrony -y
+  - apt install chrony -y
   - systemctl start chronyd
   - systemctl enable chronyd
   
@@ -33,40 +30,25 @@
   - cd cephadm
 
 # Install docker all nodes
-  - yum install epel-release -y
-  - yum install docker -y
-  - systemctl start docker
-  - systemctl enable docker
+  - https://docs.docker.com/engine/install/ubuntu/
   
 # Use curl to fetch the most recent version of the standalone script:
   - curl --silent --remote-name --location https://github.com/ceph/ceph/raw/octopus/src/cephadm/cephadm
   - chmod +x cephadm
-# install python3 all nodes before install cephadm
-  - yum install python3 -y
   
 # add repo release cephadm all nodes
   - ./cephadm add-repo --release octopus
+  - wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
+  - apt-get update
+  - rm /etc/apt/trusted.gpg.d/ceph.release.gpg
   - ./cephadm install
   
 # comfirm cephadm is now in your path
   - which cephadm
     
 # install ceph services all nodes.
-  - yum update -y 
-  - yum install cephadm ceph-mon ceph-osd ceph-mgr ceph-common -y
-# Update kernel for centos 7
-  - rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-  - rpm -Uvh https://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
-  - yum list available --disablerepo='*' --enablerepo=elrepo-kernel
-  # install the latest mainline kernel
-  - sudo yum --enablerepo=elrepo-kernel install kernel-ml
-  # Set Default Kernel Version
-  - vi /etc/default/grub
-  > GRUB_DEFAULT=0
-  - sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-  - reboot
-  - uname -r
-  > 5.7.12-1.el7.elrepo.x86_64
+  - apt-get update 
+  - cephadm install ceph-mon ceph-osd ceph-mgr ceph-common
   
 # bootstrap the cluster run the following command just the IP for the first cluster node.
   # run this command if have more 1 NIC and config Mon ip later after bootstrap finished.
@@ -120,51 +102,38 @@
   > mon_host = [v2:192.168.1.41:3300/0,v1:192.168.1.41:6789/0] [v2:192.168.1.42:3300/0,v1:192.168.1.42:6789/0] [v2:192.168.1.43:3300/0,v1:192.168.1.43:6789/0]
 
 # deploy iscsi target 
-# install git all nodes
-  - yum install git -y
+
 # Config osd node storage cluster for iscsi
   - ceph tell osd.0 config set osd_heartbeat_grace 20
   - ceph tell osd.0 config set osd_heartbeat_interval 5
   
-# Install TCMU-RUNNER
-  - git clone https://github.com/open-iscsi/tcmu-runner
-  - cd tcmu-runner
-  - ./extra/install_dep.sh
-  - cmake -Dwith-glfs=false -Dwith-qcow=false -DSUPPORT_SYSTEMD=ON -DCMAKE_INSTALL_PREFIX=/usr
-  - make install
-  - systemctl daemon-reload
-  - systemctl enable tcmu-runner
- 
-# Install RTSLIB-FB
-  - git clone https://github.com/open-iscsi/rtslib-fb.git
-  - cd rtslib-fb
-  - python setup.py install
-
-# Configshell-fb
-  - git clone https://github.com/open-iscsi/configshell-fb.git
-  - cd configshell-fb
-  - python setup.py install
-  
-# Install targetcli-fb
-  - git clone https://github.com/open-iscsi/targetcli-fb.git
-  - cd targetcli-fb
-  - python setup.py install
-  - mkdir /etc/target
-  - mkdir /var/target
-  
 # Install ceph-iscsi
-  - git clone https://github.com/ceph/ceph-iscsi.git
-  - cd ceph-iscsi
-  - python setup.py install --install-scripts=/usr/bin
-  - cp usr/lib/systemd/system/rbd-target-gw.service /lib/systemd/system
-  - cp usr/lib/systemd/system/rbd-target-api.service /lib/systemd/system
+  - apt install ceph-iscsi
   - systemctl daemon-reload
   - systemctl enable rbd-target-gw
   - systemctl start rbd-target-gw
   - systemctl enable rbd-target-api
   - systemctl start rbd-target-api
   
-Install iscsi-gateway dashboard
+# Create iqn target
+  - gwcli
+  - cd /iscsi-targets
+  - create iqn.2020-08.vndata.vn.iscsi-gw:iscsi-igw
+  - cd iqn.2020-08.vndata.vn.iscsi-gw:iscsi-igw/gateways
+  - create ceph1 192.168.1.41
+  - create ceph2 192.168.1.42
+  - cd /disks
+  > create image with pool rbd
+  - create pool=rbd image=disk_1 size=90G
+  > Create client with initiator name
+  - cd hosts/
+  - create iqn.2020-08.vndata.vn.client:vndata-client
+  > Create Chap username and password
+  - auth username=huy password =huy
+  > Add disk to client
+  - disk add rbd/disk_1
+  
+# Install iscsi-gateway dashboard
   - ceph dashboard set-iscsi-api-ssl-verification false
   - ceph dashboard iscsi-gateway-add http://admin:admin@192.168.1.41:5000
   - ceph dashboard iscsi-gateway-add http://admin:admin@192.168.1.42:5000
